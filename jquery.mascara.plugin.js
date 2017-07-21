@@ -1,4 +1,4 @@
-/**
+/** @preserve
  * jquery.mascara.plugin.js
  * @version: v1.17.07
  * @author: Diego Lepera
@@ -29,6 +29,11 @@
  */
 
 /* global Set */
+
+// Verificar se o jQuery foi inicializado
+if (jQuery === undefined) {
+    console.error('[Plugin $.mascara] O jQuery ainda não foi inciado.\nPara utilizar esse plugin é necessário inicializar o jQuery antes.');
+} // Fim if
 
 (function ($) {
     /**
@@ -190,10 +195,57 @@
      * @return {Object.jQuery}  Instância jQuery modificada
      */
     $.fn.mascara = function (mascara, opcoes) {
-        // Verificar se o jQuery foi inicializado
-        if (jQuery === undefined) {
-            console.error('[Plugin $.mascara] O jQuery ainda não foi inciado.\nPara utilizar esse plugin é necessário inicializar o jQuery antes.');
-        } // Fim if
+        /**
+         * Nome do namespace usado para criar e utilizar os eventos do plugin
+         * @type {String}
+         */
+        var evt_ns = '__msk';
+
+        /**
+         * Mapeamento dos caracteres chaves da máscara. Esses caracteres serão
+         * substituídos de acordo com a digitação do usuário, desde que sejam
+         * compatíveis com a expressão regular correspondente
+         * @type {Object}
+         */
+        var mapeamento = {
+            '0': /[\d]/,
+            'A': /[A-Z]/,
+            'a': /[a-z]/,
+            'w': /[A-Za-z]/
+        };
+
+        /**
+         * Opcões padrão. Esses valores serão usados quando o desenvolvedor
+         * não indicar outros através do parâmetro 'opcoes' do plugin
+         * @type {Object}
+         */
+        opcoes = $.extend(true, {
+            /**
+             * Define se o valor do campo deve se limitar ao tamanho da máscara
+             * @type {Boolean}
+             */
+            limitar: true,
+
+            /**
+             * Mostrar um placeholder indicativo da máscara.
+             * Obs: Não substitui placeholder configurado no HTML
+             * @type {Boolean}
+             */
+            placeholder: true,
+
+            /**
+             * Array com os códigos ASCII das teclas a serem ignoradas
+             * @type {Array}
+             */
+            ignorarTeclas: [
+                8,  // Backspace / delete
+                9,  // TAB
+                37, // Seta para esquerda
+                38, // Seta para cima
+                39, // Seta para direita
+                40  // Seta para baixo
+            ]
+        }, opcoes);
 
         $(window).on('load.__msk', function () {
             // Iniciar o plugin automaticamente em elementos que solicitam a máscara
@@ -229,58 +281,6 @@
              * @type {Object.jQuery}
              */
             var $this = $(this);
-
-            /**
-             * Nome do namespace usado para criar e utilizar os eventos do plugin
-             * @type {String}
-             */
-            var evt_ns = '__msk';
-
-            /**
-             * Mapeamento dos caracteres chaves da máscara. Esses caracteres serão
-             * substituídos de acordo com a digitação do usuário, desde que sejam
-             * compatíveis com a expressão regular correspondente
-             * @type {Object}
-             */
-            var mapeamento = {
-                '0': /[\d]/,
-                'A': /[A-Z]/,
-                'a': /[a-z]/,
-                'w': /[A-Za-z]/
-            };
-
-            /**
-             * Opcões padrão. Esses valores serão usados quando o desenvolvedor
-             * não indicar outros através do parâmetro 'opcoes' do plugin
-             * @type {Object}
-             */
-            opcoes = $.extend(true, {
-                /**
-                 * Define se o valor do campo deve se limitar ao tamanho da máscara
-                 * @type {Boolean}
-                 */
-                limitar: true,
-
-                /**
-                 * Mostrar um placeholder indicativo da máscara.
-                 * Obs: Não substitui placeholder configurado no HTML
-                 * @type {Boolean}
-                 */
-                placeholder: true,
-
-                /**
-                 * Array com os códigos ASCII das teclas a serem ignoradas
-                 * @type {Array}
-                 */
-                ignorarTeclas: [
-                    8,  // Backspace / delete
-                    9,  // TAB
-                    37, // Seta para esquerda
-                    38, // Seta para cima
-                    39, // Seta para direita
-                    40  // Seta para baixo
-                ]
-            }, opcoes);
 
             if (typeof opcoes.mapeamento !== 'undefined') {
                 mapeamento = $.extend(true, {}, mapeamento, opcoes.mapeamento);
