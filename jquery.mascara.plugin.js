@@ -1,10 +1,10 @@
 /** @preserve
  * jquery.mascara.plugin.js
- * @version: v1.17.07
+ * @version: v1.17.07-r1
  * @author: Diego Lepera
  *
  * Created by Diego Lepera on 2017-07-11. Please report any bug at
- * http://diegolepera.xyz/contato
+ * https://github.com/dlepera88-jquery/jquery-mascara/issues
  *
  * The MIT License (MIT)
  * Copyright (c) 2017 Diego Lepera http://diegolepera.xyz/
@@ -196,12 +196,6 @@ if (jQuery === undefined) {
      */
     $.fn.mascara = function (mascara, opcoes) {
         /**
-         * Nome do namespace usado para criar e utilizar os eventos do plugin
-         * @type {String}
-         */
-        var evt_ns = '__msk';
-
-        /**
          * Mapeamento dos caracteres chaves da máscara. Esses caracteres serão
          * substituídos de acordo com a digitação do usuário, desde que sejam
          * compatíveis com a expressão regular correspondente
@@ -247,34 +241,6 @@ if (jQuery === undefined) {
             ]
         }, opcoes);
 
-        $(window).on('load.__msk', function () {
-            // Iniciar o plugin automaticamente em elementos que solicitam a máscara
-            $('[data-mask]').each(function () {
-                var $this = $(this),
-                    mask = $this.data('mask'),
-                    atributos, attr_data = {},
-                    nome, valor;
-
-                if (typeof mask !== 'undefined') {
-                    /*
-                     * Identificar todos os atributos data- do campo para incluir como opcoes
-                     */
-                    atributos = this.attributes;
-
-                    for (var attr in atributos) {
-                        nome = atributos[attr].name;
-
-                        if (/^data\-/.test(nome)) {
-                            valor = atributos[attr].value;
-                            attr_data[nome.replace(/^data\-/, '')] = eval(valor);
-                        } // Fim if
-                    } // Fim for
-
-                    $this.mascara(mask, attr_data);
-                } // Fim if
-            });
-        });
-
         return this.each(function () {
             /**
              * Instância jQuery a ser modificada
@@ -297,10 +263,10 @@ if (jQuery === undefined) {
             } // Fim if
 
             // Remover os eventos da máscara anterior para evitar conflitos
-            $this.off('.' + evt_ns)
+            $this.off('.' + $.fn.mascara.evt_ns)
 
             // Aplicar a máscara durante a digitação
-            .on('keyup.' + evt_ns, $.extend(true, {}, {msk: mascara, map: mapeamento}, opcoes), function (evt) {
+            .on('keyup.' + $.fn.mascara.evt_ns, $.extend(true, {}, {msk: mascara, map: mapeamento}, opcoes), function (evt) {
                 var $_this = $(this),
                     opcoes = evt.data,
                     kc = evt.keyCode || evt.which,
@@ -316,7 +282,62 @@ if (jQuery === undefined) {
                     $_this.val(fMask.aplicarMascara($_this.val(), opcoes.msk, opcoes.map, opcoes.limitar));
                     fCursor.mover(this, posicao_atual + (posicao_atual >= $_this.val().length - 1));
                 } // Fim if
+            })
+
+            // Alguns navegadores disparam o evento oninput ao preencher automaticamente
+            // um campo. Por isso, uso esse evento para aplicar a máscara
+            .on('input.' + $.fn.mascara.evt_ns, $.extend(true, {}, {msk: mascara, map: mapeamento}, opcoes), function (evt) {
+                var $_this = $(this), opcoes = evt.data;
+                $_this.val(fMask.aplicarMascara($_this.val(), opcoes.msk, opcoes.map, opcoes.limitar));
             });
         });
     };
+
+    /**
+     * Nome do namespace usado para criar e utilizar os eventos do plugin
+     * @type {String}
+     */
+    $.fn.mascara.evt_ns = '__msk';
+
+    $(window).on('load.' + $.fn.mascara.evt_ns, function () {
+        // Iniciar o plugin automaticamente em elementos que solicitam a máscara
+        $('[data-mask]').each(function () {
+            var $this = $(this),
+                mask = $this.data('mask'),
+                atributos, attr_data = {},
+                nome, valor;
+
+            if (typeof mask !== 'undefined') {
+                /*
+                 * Identificar todos os atributos data- do campo para incluir como opcoes
+                 */
+                atributos = this.attributes;
+
+                for (var attr in atributos) {
+                    nome = atributos[attr].name;
+
+                    if (/^data\-/.test(nome)) {
+                        valor = atributos[attr].value;
+
+                        /*
+                         * Os valores dos atributos vem como string. Portanto,
+                         * é necssário converter os valores 0 e 1 para false e
+                         * true respectivamente.
+                         *
+                         * Obs: 'eval is evil' e não funcionou bem quando foi utilizado
+                         */
+                        if (valor === '0') {
+                            valor = false;
+                        } else if (valor === '1') {
+                            valor = true;
+                        } // Fim if
+
+                        attr_data[nome.replace(/^data\-/, '')] = valor;
+                    } // Fim if
+                } // Fim for
+
+                $this.mascara(mask, attr_data);
+            } // Fim if
+        });
+    });
 })(jQuery);
