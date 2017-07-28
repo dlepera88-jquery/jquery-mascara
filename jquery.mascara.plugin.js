@@ -1,4 +1,4 @@
-/** @preserve
+/**
  * jquery.mascara.plugin.js
  * @version: v1.17.07-r1
  * @author: Diego Lepera
@@ -26,6 +26,11 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
+ */
+
+/** @preserve
+ * The MIT License (MIT) https://github.com/dlepera88-jquery/jquery-mascara/blob/master/LICENSE
+ * Copyright (c) 2017 Diego Lepera http://diegolepera.xyz/
  */
 
 /* global Set */
