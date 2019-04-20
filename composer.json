@@ -1,0 +1,11 @@
+{
+  "name": "dlepera88-jquery/jquery-form-ajax",
+  "version": "2.0",
+  "license": "MIT",
+  "authors": [
+    {"name": "Diego Lepera", "email": "dlepera88@gmail.com"}
+  ],
+  "require": {
+    "components/jquery": "^3.3"
+  }
+}
